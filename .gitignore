@@ -12,4 +12,5 @@ pyrebase.py.orig
 /secret.json
 /tests/config.py
 .cache
+env
 
