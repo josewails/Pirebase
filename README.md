@@ -1,15 +1,13 @@
-# Pyrebase
+# Pirebase
 
 A simple python wrapper for the [Firebase API](https://firebase.google.com).
 
-## Support
-
-Does your business or project depend on Pyrebase? Reach out to pibals@protonmail.com
+This is a fork of the original [Pyrebase](https://github.com/thisbejim/Pyrebase) library which has been inactive for a while now.
 
 ## Installation
 
-```python
-pip install pyrebase
+```bash
+pip install pirebase
 ```
 
 ## Getting Started
@@ -74,7 +72,7 @@ The ```sign_in_with_email_and_password()``` method will return user data includi
 Each of the following methods accepts a user token: ```get()```, ```push()```, ```set()```, ```update()```, ```remove()``` and ```stream()```.
 
 ```python
-# Get a reference to the auth service
+# Get a reference to the auth servicei
 auth = firebase.auth()
 
 # Log the user in
