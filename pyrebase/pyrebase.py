@@ -13,7 +13,7 @@ import time
 from sseclient import SSEClient
 import threading
 import socket
-from gcloud import storage
+from google.cloud import storage
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
 
@@ -375,7 +375,7 @@ class Storage:
         self.requests = requests
         self.path = ""
         if credentials:
-            client = storage.Client(credentials=credentials, project=storage_bucket)
+            client = storage.Client(_http=AuthorizedSession(self.credentials), project=storage_bucket)
             self.bucket = client.get_bucket(storage_bucket)
 
     def child(self, *args):
@@ -388,26 +388,40 @@ class Storage:
             self.path = new_path
         return self
 
-    def put(self, file, token=None):
+    def upload(self, file, _from='filename', token=None):
         # reset path
+
+        from_options = ['file', 'filename', 'string']
+        if _from not in from_options:
+            raise Exception(f"_from must be one of {from_options}")
+
         path = self.path
         self.path = None
-        if isinstance(file, str):
+        if _from == 'filename':
             file_object = open(file, 'rb')
+
+        elif _from == 'string':
+            file_object = None
+
         else:
             file_object = file
+
         request_ref = self.storage_bucket + "/o?name={0}".format(path)
         if token:
             headers = {"Authorization": "Firebase " + token}
             request_object = self.requests.post(request_ref, headers=headers, data=file_object)
             raise_detailed_error(request_object)
             return request_object.json()
+
         elif self.credentials:
             blob = self.bucket.blob(path)
-            if isinstance(file, str):
+            if _from == 'filename':
                 return blob.upload_from_filename(filename=file)
-            else:
+            elif _from == 'file':
                 return blob.upload_from_file(file_obj=file)
+            elif _from == 'string':
+                return blob.upload_from_string(file)
+
         else:
             request_object = self.requests.post(request_ref, data=file_object)
             raise_detailed_error(request_object)
@@ -416,13 +430,31 @@ class Storage:
     def delete(self, name):
         self.bucket.delete_blob(name)
 
-    def download(self, filename, token=None):
+    def download_as_string(self, token=None):
+
+        path = self.path
+        self.path = None
+        path = path[1:] if path.startswith('/') else path
+
+        if self.credentials:
+            blob = self.bucket.get_blob(path)
+            return blob.download_as_string()
+
+        else:
+
+            # Todo: Implement download to string when credentials are not present
+
+            pass
+
+    def download(self, filename=None, token=None):
         # remove leading backlash
+
         path = self.path
         url = self.get_url(token)
         self.path = None
         if path.startswith('/'):
             path = path[1:]
+
         if self.credentials:
             blob = self.bucket.get_blob(path)
             blob.download_to_filename(filename)

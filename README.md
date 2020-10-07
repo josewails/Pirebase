@@ -4,6 +4,12 @@ A simple python wrapper for the [Firebase API](https://firebase.google.com).
 
 This is a fork of the original [Pyrebase](https://github.com/thisbejim/Pyrebase) library which has been inactive for a while now.
 
+
+## New Changes
++ Use [gcloud-auth](https://google-auth.readthedocs.io/en/latest/) for authentication in place of the deprecated Oauth2Client. 
++ Update all other packages to their latest versions
++ Add ability to upload/download strings using the Storage class. 
+
 ## Installation
 
 ```bash
@@ -52,6 +58,7 @@ firebase = pyrebase.initialize_app(config)
 
 Adding a service account will authenticate as an admin by default for all database queries, check out the
 [Authentication documentation](#authentication) for how to authenticate users.
+
 
 ### Use Services
 
@@ -375,7 +382,7 @@ storage.child("images/example.jpg")
 
 ### put
 
-The put method takes the path to the local file and an optional user token.
+The put method takes the path to the local file and an optional user token. 
 
 ```python
 storage = firebase.storage()
@@ -385,12 +392,33 @@ storage.child("images/example.jpg").put("example2.jpg")
 storage.child("images/example.jpg").put("example2.jpg", user['idToken'])
 ```
 
+The put method uploads files to GCS in three main ways:
+
++ Upload from filename(default)
+```python
+storage.child("images/example.jpg").put("example2.jpg", _from='filename')
+```
++ Upload from file
+```python
+storage.child("images/example.jpg").put("example2.jpg", _from='file')
+```
++ Upload from string
+```python
+import json
+storage.child("example.json").put(json.dumps({"test": "test"}), _from='string')
+```
+
 ### download
 
 The download method takes the path to the saved database file and the name you want the downloaded file to have.
 
-```
+```python
 storage.child("images/example.jpg").download("downloaded.jpg")
+```
+
+### download_as_string
+```python
+storage.child("example.json").download_as_string()
 ```
 
 ### get_url
