@@ -22,6 +22,7 @@ setup(
         'requests_toolbelt>=0.7.0',
         'python_jwt>=2.0.1',
         'pycryptodome>=3.9.8',
-        "google-cloud-storage>=1.31.2"
+        "google-cloud-storage>=1.31.2",
+        "sseclient"
     ]
 )
