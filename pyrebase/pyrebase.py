@@ -1,3 +1,7 @@
+import datetime
+
+from . import constants
+
 import requests
 from requests.exceptions import HTTPError
 
@@ -19,7 +23,6 @@ from google.auth.transport.requests import AuthorizedSession
 
 import python_jwt as jwt
 from Crypto.PublicKey import RSA
-import datetime
 
 
 def initialize_app(config):
@@ -160,6 +163,14 @@ class Auth:
             self.api_key)
         headers = {"content-type": "application/json; charset=UTF-8"}
         data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
+        request_object = requests.post(request_ref, headers=headers, data=data)
+        raise_detailed_error(request_object)
+        return request_object.json()
+
+    def delete_user(self, id_token):
+        request_ref = f"{constants.BASE_AUTH_URL}:delete?key={self.api_key}"
+        headers = {"content-type": "application/json; charset=UTF-8"}
+        data = json.dumps({'idToken': id_token})
         request_object = requests.post(request_ref, headers=headers, data=data)
         raise_detailed_error(request_object)
         return request_object.json()
