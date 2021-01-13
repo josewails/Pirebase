@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Pirebase',
-    version='3.1.27',
+    version='3.1.29',
     url='https://github.com/josewails/Pirebase',
     description='A simple python wrapper for the Firebase API',
     author='Joseph Gitonga Wagura',

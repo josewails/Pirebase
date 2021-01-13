@@ -73,6 +73,7 @@ class Auth:
         self.current_user = None
         self.requests = requests
         self.credentials = credentials
+        self.authed_session = AuthorizedSession(self.credentials)
 
     def sign_in_with_email_and_password(self, email, password):
         request_ref = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key={0}".format(
@@ -85,6 +86,7 @@ class Auth:
         return request_object.json()
 
     def create_custom_token(self, uid, additional_claims=None):
+        print(vars(self.credentials))
         service_account_email = self.credentials.service_account_email
         private_key = RSA.importKey(self.credentials._private_key_pkcs8_pem)
         payload = {
@@ -172,6 +174,15 @@ class Auth:
         headers = {"content-type": "application/json; charset=UTF-8"}
         data = json.dumps({'idToken': id_token})
         request_object = requests.post(request_ref, headers=headers, data=data)
+        raise_detailed_error(request_object)
+        return request_object.json()
+
+    def get_user(self, uid):
+        request_ref = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={0}".format(
+            self.api_key)
+        headers = {"content-type": "application/json; charset=UTF-8"}
+        data = {"localId": uid}
+        request_object = self.authed_session.request(method="post", url=request_ref, headers=headers, json=data)
         raise_detailed_error(request_object)
         return request_object.json()
 
